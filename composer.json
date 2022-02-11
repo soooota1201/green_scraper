@@ -3,6 +3,7 @@
         "guzzlehttp/guzzle": "^7.4",
         "scotteh/php-dom-wrapper": "^2.0",
         "chrome-php/chrome": "^1.4",
-        "vlucas/phpdotenv": "^5.4"
+        "vlucas/phpdotenv": "^5.4",
+        "google/apiclient": "^2.0"
     }
 }
