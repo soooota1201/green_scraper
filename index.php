@@ -58,6 +58,7 @@ for ($i=1; $i < $totalPages; $i++)
   }
   foreach ($annualIncomes as $annualIncome) {
     $annualIncome = strpos($annualIncome->text(), '万円') !== false ? $annualIncome->text() : '';
+    $annualIncome = substr(trim($annualIncome), 0, 3);
     array_push($annualIncomeArray, $annualIncome);
   }
   foreach ($companyNames as $companyName) {
@@ -65,11 +66,30 @@ for ($i=1; $i < $totalPages; $i++)
   }
 }
 
+foreach (array_map(NULL, $titleArray, $annualIncomeArray, $companyNameArray) as [$title, $annualIncome, $companyName]) 
+{
+  $recruitmentArray[] = [
+    'title'         => $title,
+    'annualIncome'  => $annualIncome,
+    'companyName'   => $companyName
+  ];
+}
+
+function sortByAnnualIncome($annualIncome, $sort_order, $array) 
+{
+  foreach ($array as $key => $value) {
+    $standard_key_array[$key] = $value[$annualIncome];
+  }
+  array_multisort($standard_key_array, $sort_order, $array);
+  return $array;
+}
+$recruitmentsSortedByAnnualIncome = sortByAnnualIncome('annualIncome', SORT_DESC, $recruitmentArray);
+
 for($r=1; $r < 50; $r++)
 {
   $rowNum = $r;
   $service = new Google_Service_Sheets($googleClient);
   $value = new Google_Service_Sheets_ValueRange();
-  $value->setValues(['values' => [$titleArray[$r], $annualIncomeArray[$r], $companyNameArray[$r]]]);
+  $value->setValues(['values' => [$recruitmentsSortedByAnnualIncome[$r]['title'], $recruitmentsSortedByAnnualIncome[$r]['annualIncome'], $recruitmentsSortedByAnnualIncome[$r]['companyName']]]);
   $response = $service->spreadsheets_values->update(SPREADSHEET_ID, 'シート1!A' . $rowNum, $value, ['valueInputOption' => 'USER_ENTERED']);
 }
